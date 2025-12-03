@@ -2,6 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import {AuthProvider} from "@/context/AuthContext";
+import { Roboto } from "next/font/google";
+
+const roboto = Roboto({
+    weight: ["400", "500", "700"], // choose weights you need
+    subsets: ["latin"],
+    display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${roboto.className} antialiased`}
       >
       <AuthProvider>
           {children}
