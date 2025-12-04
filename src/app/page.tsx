@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import StorePage from "@/components/@pages/Store";
 
 export default function HomePage() {
     const router = useRouter();
@@ -8,7 +9,7 @@ export default function HomePage() {
 
     return (
         <main className="min-h-screen grid place-items-center bg-gradient-to-b from-gray-900 to-gray-800 text-white p-6">
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4 mb-5">
                 <h1 className="text-4xl font-bold">Mai Centralized DAO</h1>
                 <p className="text-sm opacity-80">Mock login enabled — backend coming soon</p>
 
@@ -22,6 +23,7 @@ export default function HomePage() {
                     </button>
                 )}
             </div>
+            <StorePage />
         </main>
     );
 }
