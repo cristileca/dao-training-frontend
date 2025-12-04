@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function RegisterPage() {
-    const router = useRouter();
     const { register } = useAuth();
 
     const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
@@ -36,37 +36,98 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-md">
-                <h1 className="text-4xl font-semibold text-black text-center mb-4">Register</h1>
+        <div className="min-h-screen w-screen font-roboto bg-[#0a2037] flex items-center justify-center bg-[url(/login-background.webp)] bg-cover bg-center">
+            <div className="relative w-[652px] h-[620px] flex justify-center">
 
-                {error && <p className="bg-red-100 text-red-700 p-2 rounded text-sm mb-3">{error}</p>}
+                {/* Top small decorative bar (same as login) */}
+                <div className="border-mask w-[602px] h-[66px] absolute rounded-[10px] overflow-hidden -top-3" />
 
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    <input className="w-full border text-black p-2 rounded text-sm" placeholder="Name" name="name"
-                           value={form.name} onChange={handleChange} required />
+                {/* Main card container */}
+                <div className="relative w-full h-full mask rounded-[10px] overflow-hidden shadow-md">
 
-                    <input className="w-full border p-2 text-black  rounded text-sm" placeholder="Email" name="email" type="email"
-                           value={form.email} onChange={handleChange} required />
+                    {/* Inner microchip image */}
+                    <div className="absolute inset-0 bg-[url(/smart-microchip-bg.webp)] bg-contain bg-no-repeat bg-center"></div>
 
-                    <input className="w-full border p-2 text-black  rounded text-sm" placeholder="Password" name="password" type="password"
-                           value={form.password} onChange={handleChange} required />
+                    <div className="relative z-10 flex flex-col items-center">
+                        <Image
+                            width={148}
+                            height={40}
+                            className="m-auto mt-[63px]"
+                            src="./logo-dao-1.svg"
+                            alt="logo"
+                        />
 
-                    <input className="w-full border p-2 text-black  rounded text-sm" placeholder="Confirm Password" name="confirm" type="password"
-                           value={form.confirm} onChange={handleChange} required />
+                        <h1 className="text-4xl mt-[42px] font-semibold text-center mb-9">Register</h1>
 
-                    <button disabled={loading} className="w-full bg-black text-white p-2 rounded text-sm disabled:opacity-50">
-                        {loading ? "Creating..." : "Register"}
-                    </button>
-                </form>
+                        {error && (
+                            <p className="bg-red-100 text-red-700 p-2 rounded text-sm mb-3">
+                                {error}
+                            </p>
+                        )}
 
-                <p className="text-center text-black mt-2 text-xs">
-                    Already have account?{" "}
-                    <span className="text-blue-600 cursor-pointer" onClick={() => router.push("/login")}>
-            Login
-          </span>
-                </p>
+                        <form onSubmit={handleSubmit} className="space-y-3 m-auto w-[379px]">
+
+                            <input
+                                className="w-full border border-[#2a5577] text-blue-100 p-3 rounded bg-[#0b273c] h-14 text-sm"
+                                placeholder="Name"
+                                name="name"
+                                value={form.name}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <input
+                                className="w-full border border-[#2a5577] text-blue-100 p-3 rounded bg-[#0b273c] h-14 text-sm"
+                                placeholder="Email Address"
+                                name="email"
+                                type="email"
+                                value={form.email}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <input
+                                className="w-full border border-[#2a5577] text-blue-100 p-3 rounded bg-[#0b273c] h-14 text-sm"
+                                placeholder="Password"
+                                name="password"
+                                type="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <input
+                                className="w-full border border-[#2a5577] text-blue-100 p-3 rounded bg-[#0b273c] h-14 text-sm"
+                                placeholder="Confirm Password"
+                                name="confirm"
+                                type="password"
+                                value={form.confirm}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <div className="btn-gold-border w-full">
+                                <button
+                                    disabled={loading}
+                                    className="w-full h-[56px] bg-gradient-to-r from-[#11314a] to-[#0c2539] text-white rounded p-2 text-sm disabled:opacity-50 flex items-center justify-center hover:h-15"
+                                >
+                                    {loading ? "Creating..." : "Plug in"}
+                                </button>
+                            </div>
+
+                        </form>
+
+                        <p className="text-blue-300 text-sm flex justify-center mt-4">
+                            Already have an account?{" "}
+                            <a href="/login" className="text-blue-500 ml-1">
+                                Login
+                            </a>
+                        </p>
+
+                    </div>
+                </div>
             </div>
         </div>
+
     );
 }

@@ -24,7 +24,7 @@ export default function LoginPage() {
             await new Promise((resolve) => setTimeout(resolve, 3000));
 
             await login(form.email, form.password);
-        } catch (err: never) {
+        } catch (err: any) {
             setError(err.message);
         }
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen w-screen font-roboto bg-[#0a2037] flex items-center justify-center bg-[url(/login-background.webp)] bg-cover bg-center">
-            <div className="relative  w-[652px] h-[620px]  flex justify-center ">
+            <div className="relative w-[652px] h-[620px]  flex justify-center ">
                 <div className={"border-mask w-[602px] h-[66px] absolute rounded-[10px] -top-3"}/>
                 <div className="relative w-full h-full mask  shadow-md">
                     <div className="absolute inset-0 bg-[url(/smart-microchip-bg.webp)] bg-contain bg-no-repeat bg-center"></div>
