@@ -22,11 +22,7 @@ export default function BundleCard({ title, price, benefits }: BundleCardProps) 
                 whileTap={{ scale: 0.999 }}  // shrink when finger/mouse is pressed
                 whileHover={{ scale: 1.02 }} // hover zoom
                 transition={{ type: "spring", stiffness: 300, damping: 10 }} // springy bounce
-                className="
-                mt-auto w-full border border-amber-200 h-[48px] bg-gradient-to-r cursor-pointer
-                from-[#11314a] to-[#0c2539] text-white text-sm rounded-lg
-                overflow-visible
-              "
+                className="mt-auto w-full border border-amber-200 h-[48px] bg-gradient-to-r cursor-pointer from-[#11314a] to-[#0c2539] text-white text-sm rounded-lg overflow-visible"
             >
                 Buy Now
             </motion.button>        </div>
