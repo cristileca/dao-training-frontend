@@ -20,7 +20,6 @@ function SubmitButton() {
 
 export default function LoginPage() {
     const { login } = useAuth();
-    console.log("test")
     const handleSubmit = async (formData: FormData) => {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;

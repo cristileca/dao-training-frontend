@@ -7,6 +7,7 @@ import { User } from "@/types";
 type AuthContextType = {
     user: User | null;
     login: (email: string, password: string) => Promise<void>;
+    register: (name: string, email: string, password: string, referral_id?: string) => Promise<{ message: string; user: User }>;
     logout: () => Promise<void>;
     loading: boolean;
 };
@@ -41,14 +42,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchUser();
     }, []);
 
-    const login = async (email: string, password: string) => {
-        // Get CSRF cookie first
-        const xsrfToken = decodeURIComponent(
+    const getXsrfToken = () =>
+        decodeURIComponent(
             document.cookie
                 .split("; ")
                 .find(row => row.startsWith("XSRF-TOKEN="))
                 ?.split("=")[1] || ""
         );
+
+    const login = async (email: string, password: string) => {
+        const xsrfToken = getXsrfToken();
 
         const res = await fetch("http://localhost:8000/api/login", {
             method: "POST",
@@ -73,20 +76,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push("/dashboard");
     };
 
+    const register = async (name: string, email: string, password: string, referral_id?: string) => {
+        const xsrfToken = getXsrfToken();
+
+        await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+            credentials: "include",
+        });
+
+        const res = await fetch("http://localhost:8000/api/register", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken,
+            },
+            body: JSON.stringify({ name, email, password, referral_id }),
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.message || "Registration failed");
+        }
+
+        const data: { message: string; user: User } = await res.json();
+        setUser(data.user);
+        router.push("/dashboard");
+
+        return data;
+    };
+
     const logout = async () => {
-        const xsrfToken = decodeURIComponent(
-            document.cookie
-                .split("; ")
-                .find(row => row.startsWith("XSRF-TOKEN="))
-                ?.split("=")[1] || ""
-        );
+        const xsrfToken = getXsrfToken();
 
         await fetch("http://localhost:8000/api/logout", {
             method: "POST",
             credentials: "include",
             headers: {
-                "X-XSRF-TOKEN": xsrfToken, // Laravel expects this header
                 "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken,
             },
         });
 
@@ -95,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

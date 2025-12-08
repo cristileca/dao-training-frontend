@@ -27,34 +27,39 @@ export default function RegisterPage() {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
         const confirm = formData.get("confirm") as string;
-        console.log("rerender", name, email, password);
+        const referralId = formData.get("referralId") as string;
+
+
         setError("");
 
         if (password !== confirm) {
             setError("Passwords do not match");
             return;
         }
+        await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+            credentials: "include",
+        });
 
         try {
-            await register(name, email, password);
-        } catch (err: any) {
+            await register(name, email, password, referralId );
+        } catch (err: unknown) {
             setError(err.message);
         }
     };
 
     return (
         <div className="min-h-screen w-screen bg-[#0a2037] flex items-center justify-center bg-[url(/login-background.webp)]  bg-center">
-            <div className="relative w-[652px] h-[620px] flex justify-center">
+            <div className="relative w-[652px]  flex justify-center">
 
                 {/* existing TOP decorative bar */}
                 <div className="border-mask w-[602px] h-[66px] absolute rounded-[10px] overflow-hidden -top-3"></div>
 
                 {/* MAIN card */}
                 <div className="relative w-full h-full mask shadow-md overflow-hidden rounded-[10px]">
-                    <div className="absolute inset-0 bg-[url(/smart-microchip-bg.webp)] bg-contain bg-no-repeat bg-center"></div>
+                    <div className="absolute inset-0 bg-[url(/smart-microchip-bg.webp)] bg-cover  bg-no-repeat bg-center"></div>
 
                     {/* form content */}
-                    <div className="relative z-10 flex flex-col items-center">
+                    <div className="relative z-10 flex flex-col  items-center">
                         <Image width={148} height={40} className="mt-[63px]" src="./logo-dao-1.svg" alt="logo"/>
                         <h1 className="text-4xl mt-[42px] font-semibold text-center mb-6">Register</h1>
 
@@ -97,14 +102,21 @@ export default function RegisterPage() {
                                 required
                             />
 
-                            {/* keep your gold border wrapper if needed */}
+                            <input
+                                className="w-full border border-[#2a5577] text-blue-100 px-4 rounded bg-[#0b273c] h-14 text-sm"
+                                placeholder="Referral code here..."
+                                name="referralId"
+                                type="referralId"
+                                required
+                            />
+
                             <div className="btn-gold-border w-full">
                                 <SubmitButton idleText="Plug in" />
                             </div>
 
                         </Form>
 
-                        <p className="text-blue-300 text-sm flex justify-center mt-4">
+                        <p className="text-blue-300 text-sm flex justify-center my-4">
                             Already have an account?{" "}
                             <a href="/login" className="text-blue-500 ml-1">Login</a>
                         </p>
