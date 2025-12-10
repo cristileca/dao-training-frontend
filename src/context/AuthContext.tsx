@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const res = await fetch("http://localhost:8000/api/user", {
                     credentials: "include",
                 });
+
                 if (res.ok) {
                     const data: User = await res.json();
                     setUser(data);
@@ -42,16 +43,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchUser();
     }, []);
 
-    const getXsrfToken = () =>
-        decodeURIComponent(
+    const getXsrfToken = async () => {
+        await fetch("http://localhost:8000/sanctum/csrf-cookie", {
+            credentials: "include",
+        });
+
+        return decodeURIComponent(
             document.cookie
                 .split("; ")
                 .find(row => row.startsWith("XSRF-TOKEN="))
                 ?.split("=")[1] || ""
         );
+    };
 
     const login = async (email: string, password: string) => {
-        const xsrfToken = getXsrfToken();
+        const xsrfToken = await  getXsrfToken();
 
         const res = await fetch("http://localhost:8000/api/login", {
             method: "POST",
@@ -77,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const register = async (name: string, email: string, password: string, referral_id?: string) => {
-        const xsrfToken = getXsrfToken();
+        const xsrfToken = await  getXsrfToken();
 
         await fetch("http://localhost:8000/sanctum/csrf-cookie", {
             credentials: "include",
@@ -106,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = async () => {
-        const xsrfToken = getXsrfToken();
+        const xsrfToken = await  getXsrfToken();
 
         await fetch("http://localhost:8000/api/logout", {
             method: "POST",

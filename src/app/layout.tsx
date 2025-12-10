@@ -1,17 +1,23 @@
-"use client"
+"use client";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {AuthProvider} from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { Roboto } from "next/font/google";
 import React from "react";
 import Navbar from "@/components/@core/Navbar";
-import {usePathname} from "next/navigation";
+import { usePathname } from "next/navigation";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryClient,
+} from "@tanstack/react-query";
+
 
 const roboto = Roboto({
-    weight: ["400", "500", "700"], // choose weights you need
-    subsets: ["latin"],
-    display: "swap",
+  weight: ["400", "500", "700"], // choose weights you need
+  subsets: ["latin"],
+  display: "swap",
 });
 
 const geistSans = Geist({
@@ -29,19 +35,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const hideNavbar = pathname === "/login" || pathname === "/register";
 
-    const pathname = usePathname();
-    const hideNavbar = pathname === "/login" || pathname === "/register";
+  const queryClient = new QueryClient();
 
-    return (
+  return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.className} antialiased`}
       >
-      <AuthProvider>
-          {!hideNavbar && <Navbar />}
-          {children}
-      </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            {!hideNavbar && <Navbar />}
+            {children}
+          </AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
