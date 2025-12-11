@@ -1,6 +1,3 @@
-import {User} from "@/types"
-
-
 const getCommissionsRoute = 'api/commissions';
 const createWalletRoute = 'api/create-wallet';
 
@@ -22,8 +19,6 @@ export const DaoTrainingService =  {
 
     createWallet: async (userId:unknown) => {
         try {
-            const csrf = getCookie("XSRF-TOKEN")
-
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_COMMISSIONS_URL}api/create-wallet/${userId}`,
                 {
@@ -36,19 +31,32 @@ export const DaoTrainingService =  {
                 }
             )
 
-            console.log("Raspuns create wallet: ",res)
             if (!res.ok) {
                 const text = await res.text();
                 console.error('Error response:', text);
                 return null;
             }
 
-            const data = await res.json();
-            return data;
+            return await res.json();
 
         } catch (err) {
             console.error('createWallet error:', err);
             return null;
         }
+    },
+
+    getWallet: async  (userId:string) => {
+        try {
+            console.log(userId);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_COMMISSIONS_URL}api/get-wallet/${userId}`)
+            if (!res.ok) {
+                const text = await res.text();
+                console.log(text)
+                return null;
+            }
+
+            return await res.json();
+        } catch (e)
+            { console.log(e) }
     },
 }

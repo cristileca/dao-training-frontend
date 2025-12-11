@@ -1,0 +1,3 @@
+export const GET_COMMISSIONS = 'GET_COMMISSIONS'
+export const CREATE_WALLET = 'CREATE_WALLET'
+export const GET_WALLET = 'GET_WALLET'

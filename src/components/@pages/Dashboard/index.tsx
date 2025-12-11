@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import {useGetcommissions} from "../../../../hooks/useGetCommissions";
@@ -8,6 +8,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import {DaoTrainingService} from "@/services/dao-training-service";
 import {User} from "@/types";
+import {useGetWallet} from "../../../../hooks/useCreateWallet";
 
 export default function DashboardPage() {
   const { user, logout, loading } = useAuth();
@@ -24,13 +25,17 @@ export default function DashboardPage() {
         user: user!
     })
 
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-  }, [user, loading, router])
+    const wallet = useGetWallet(
+        {user: user!}
+    )
+
+    useEffect(() => {
+        if (loading) return;
+        if (!user) {
+          router.push("/login");
+          return;
+            }
+    }, [user, loading, router])
 
 
     const list = comm?.data?.commissions?.map((commission: Commission, index: number) => ({
@@ -41,45 +46,12 @@ export default function DashboardPage() {
   }));
 
 
-  // const commissionsList = [
-  //   {
-  //     date: "22 Oct 2024",
-  //     amount: "20 USDT",
-  //     totalVolume: 961,
-  //     received: "280 USDT",
-  //   },
-  //   {
-  //     date: "22 Oct 2024",
-  //     amount: "20 USDT",
-  //     totalVolume: 961,
-  //     received: "280 USDT",
-  //   },
-  //   {
-  //     date: "22 Oct 2024",
-  //     amount: "20 USDT",
-  //     totalVolume: 961,
-  //     received: "280 USDT",
-  //   },
-  //   {
-  //     date: "22 Oct 2024",
-  //     amount: "20 USDT",
-  //     totalVolume: 961,
-  //     received: "280 USDT",
-  //   },
-  //   {
-  //     date: "22 Oct 2024",
-  //     amount: "20 USDT",
-  //     totalVolume: 961,
-  //     received: "280 USDT",
-  //   },
-  // ];
     const initWallet = async () => {
         await DaoTrainingService.createWallet(user?.id);
     };
 
     const commissionsN = list?.length;
     console.log(commissionsN)
-  // if (loading || !user) return <div className="text-white p-6">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-[#0a2037] p-6">
@@ -87,6 +59,15 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold">DAO Dashboard</h1>
         <div className="flex items-center gap-4">
           <span>{user?.name}</span>
+
+            {wallet.data?.id? wallet.data?.id :
+            <button
+                onClick={()=> {initWallet()}}
+                className={'bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition'}
+            >
+                Create Wallet
+            </button>
+            }
           <button
             onClick={logout}
             className="bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition"

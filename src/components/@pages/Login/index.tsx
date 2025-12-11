@@ -5,6 +5,9 @@ import Form from "next/form";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import { useFormStatus } from "react-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import {GET_WALLET} from "@/lib/constants";
+
 
 function SubmitButton() {
     const { pending } = useFormStatus();
@@ -19,6 +22,8 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
+    const client = useQueryClient();
+
     const { login } = useAuth();
     const handleSubmit = async (formData: FormData) => {
         const email = formData.get("email") as string;
@@ -26,6 +31,7 @@ export default function LoginPage() {
 
         try {
             await login(email, password);
+            await client.invalidateQueries({queryKey: [GET_WALLET]});
         } catch (err: any) {
             alert(err.message);
         }
