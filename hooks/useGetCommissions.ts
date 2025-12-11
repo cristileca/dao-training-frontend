@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query'
 import {DaoTrainingService} from "@/services/dao-training-service";
 import {User} from "@/types";
