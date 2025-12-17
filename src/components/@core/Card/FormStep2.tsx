@@ -32,7 +32,7 @@ export default function FormStep2(){
                           <br/>
                           To The Following Address
                       </span>
-                    <QRCodeSVG value="https://reactjs.org/" className={"flex center  m-auto my-3"}/>
+                    <QRCodeSVG value="https://reactjs.org/" className={"flex center  m-auto  w-[30%] my-1"}/>
                     <span className="text-xs font-bold text-style-1 my-6">0x7B4f8C2A9d3E6F1aB92c5E0D4F8aA6E3C1B9D2F7</span>
                     <button className={"w-[50%] h-11 my-3 rounded-lg text-[14px] bg-blue-500 text-white"}>Copy Address</button>
                     <br/>

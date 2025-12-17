@@ -19,7 +19,7 @@ export default function BundleCard({ title, price, benefits, id }: BundleCardPro
 
 
     const buy = (async() =>{
-        setShowModal(true);
+        // setShowModal(true);
         await DaoTrainingService.buyBundle(id);
     })
 

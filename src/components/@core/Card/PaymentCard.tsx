@@ -39,7 +39,7 @@ export default function PaymentCard({ txId, dueValue, display }) {
 
                                         <div className="w-max flex flex-row m-auto text-black  mb-4">
                                             <img src="/group.png" alt="Group" className="w-[14px] m-auto h-[16px] object-contain"/>
-                                            <span className="ml-2">All payments secured</span>
+                                            <span className="ml-2 text-[11px]">All payments secured</span>
                                         </div>
                                     </div>
                                 </div>
