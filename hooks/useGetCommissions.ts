@@ -14,15 +14,4 @@ export const useGetcommissions = (
     })
 }
 
-export const useCreateWallet = (
-    params:{user:User}
-) =>{
-    return useQuery({
-        queryKey:[CREATE_WALLET],
-        queryFn:() =>
-        DaoTrainingService.createWallet((params.user?.id)),
-        enabled: !!params.user?.id,
-    })
-
-}
 

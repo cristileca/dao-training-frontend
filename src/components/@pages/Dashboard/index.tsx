@@ -1,18 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import {useGetcommissions} from "../../../../hooks/useGetCommissions";
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import {DaoTrainingService} from "@/services/dao-training-service";
-import {User} from "@/types";
-import {useGetWallet} from "../../../../hooks/useCreateWallet";
+import { useGetcommissions } from "../../../../hooks/useGetCommissions";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { DaoTrainingService } from "@/services/dao-training-service";
+import { User } from "@/types";
+import {
+  useGetWallet,
+} from "../../../../hooks/useCreateWallet";
+import { useQueryClient } from "@tanstack/react-query";
+import Card from "@/components/@core/Card/Card";
+import PaymentCard from "@/components/@core/Card/PaymentCard";
 
 export default function DashboardPage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
+  const [creatingWallet, setWalletCreated] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+  const wallet = useGetWallet({ user: user! });
+  const comm = useGetcommissions({
+      user: user!,
+  });
 
   type Commission = {
     id: string;
@@ -21,37 +32,40 @@ export default function DashboardPage() {
     created_at: string;
   };
 
-    const comm = useGetcommissions({
-        user: user!
-    })
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+  }, [user, loading, router]);
 
-    const wallet = useGetWallet(
-        {user: user!}
-    )
+  const list = comm?.data?.map(
+    (commission: Commission, index: number) => ({id:commission.id,
+      date: new Date(commission.created_at).toLocaleDateString("en-US"),
+      amount: commission.amount,
+      totalVolume: 961,
+      received: commission.amount,
+    }),
+  );
 
-    useEffect(() => {
-        if (loading) return;
-        if (!user) {
-          router.push("/login");
-          return;
-            }
-    }, [user, loading, router])
+  const initWallet = async () => {
+    setWalletCreated(true);
+    await DaoTrainingService.createWallet(user?.id).then(() => {
+      setWalletCreated(false);
+    });
+    await queryClient.invalidateQueries({ queryKey: ["GET_WALLET"] });
+  };
+    console.log(wallet);
 
-
-    const list = comm?.data?.commissions?.map((commission: Commission, index: number) => ({
-    date: new Date(commission.created_at).toLocaleDateString('en-US'),
-    amount: commission.amount,
-    totalVolume: 961,
-    received: commission.amount,
-  }));
-
-
-    const initWallet = async () => {
-        await DaoTrainingService.createWallet(user?.id);
-    };
-
-    const commissionsN = list?.length;
-    console.log(commissionsN)
+  const claimCommission = async (commissionId: string) => {
+      await DaoTrainingService.claimCommission(commissionId);
+      await queryClient.invalidateQueries({ queryKey: ["GET_COMMISSIONS"] });
+      await queryClient.invalidateQueries({ queryKey: ["GET_WALLET", user?.id] });
+      await wallet.refetch();
+      await comm.refetch();
+      console.log(comm.data);
+  }
 
   return (
     <div className="min-h-screen bg-[#0a2037] p-6">
@@ -60,14 +74,26 @@ export default function DashboardPage() {
         <div className="flex items-center gap-4">
           <span>{user?.name}</span>
 
-            {wallet.data?.id? wallet.data?.id :
+          {/*{wallet.data?.id? wallet.data?.id :*/}
+          {!wallet?.data?.id && (
             <button
-                onClick={()=> {initWallet()}}
-                className={'bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition'}
+              onClick={() => {
+                initWallet();
+              }}
+              className={
+                "bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition"
+              }
             >
-                Create Wallet
+              Create Wallet
             </button>
-            }
+          )}
+
+          {creatingWallet ? (
+            <span>...Loading...</span>
+          ) : (
+            <span>{wallet?.data?.id}</span>
+          )}
+
           <button
             onClick={logout}
             className="bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition"
@@ -76,6 +102,13 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+        {wallet ?
+        <div className="flex items-center bg-[#10314a] flex-col  m-auto w-[30%] mb-7 rounded-md ">
+            <h3 className={"m-2"}>Wallet</h3>
+            <Card name={wallet?.data?.id} value={wallet?.data?.balance} />
+        </div> : ""
+        }
+        <PaymentCard txId={12345} dueValue={50}/>
 
       <div className="flex gap-6">
         <div className="flex-1 space-y-6">
@@ -92,39 +125,38 @@ export default function DashboardPage() {
                 </tr>
               </thead>
 
-                <tbody>
-                {comm.isPending && (
-                    <tr>
-                        <td colSpan={5} className="py-2">
-                            <Skeleton
-                                height={43}
-                                count={6}
-                                baseColor="#1f3b57"
-                                highlightColor="#2f5d80"
-                            />
-                        </td>
-                    </tr>
+              <tbody>
+                {comm.isPending || comm.isFetching && (
+                  <tr>
+                    <td colSpan={5} className="py-2">
+                      <Skeleton
+                        height={43}
+                        count={6}
+                        baseColor="#1f3b57"
+                        highlightColor="#2f5d80"
+                      />
+                    </td>
+                  </tr>
                 )}
 
                 {comm.isSuccess && (
-                    <>
-                        {list.map((c:Commission, idx:number) => (
-                            <tr key={idx} className="border-b border-gray-700">
-                                <td className="py-2">{c.date}</td>
-                                <td className="py-2">{c.amount}</td>
-                                <td className="py-2">{c.totalVolume}</td>
-                                <td className="py-2">{c.received}</td>
-                                <td className="py-2">
-                                    <button className="bg-[#224765] px-2 py-1 rounded hover:bg-[#477e9e] transition">
-                                        View
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </>
+                  <>
+                    {list.map((c: Commission, idx: number) => (
+                      <tr key={idx} className="border-b border-gray-700">
+                        <td className="py-2">{c.date}</td>
+                        <td className="py-2">{c.amount}</td>
+                        <td className="py-2">{c.totalVolume}</td>
+                        <td className="py-2">{c.received}</td>
+                        <td className="py-2">
+                          <button onClick={() => claimCommission(c.id)} className="bg-[#224765] px-2 py-1 rounded hover:bg-[#477e9e] transition">
+                            Claim
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 )}
-                </tbody>
-
+              </tbody>
             </table>
           </div>
         </div>

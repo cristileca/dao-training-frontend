@@ -91,3 +91,56 @@ body {
         );
 
 }
+
+.Select-Network-Cur {
+    width: 316px;
+    height: 30px;
+    margin: 26px 138px 9px 139px;
+    font-family: Roboto;
+    font-size: 26px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.Rectangle-3 {
+    width: 337px;
+    height: 62px;
+    padding: 22px 93px 20px 18px;
+    border-radius: 10px;
+    border: solid 1px #e8e8e8;
+}
+
+.All-payments-secured {
+    width: 106px;
+    height: 13px;
+    font-family: Roboto;
+    font-size: 11px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #8b8b8b;
+}
+
+.Rectangle-2 {
+    padding: 13px 15px 12px 14px;
+    border-radius: 10px;
+    border: solid 1px #e8e8e8;
+    background-color: #fafafa;
+}
+
+.Rectangle {
+    width: 377px;
+    height: 340px;
+    margin: 20px 108px 56px;
+    padding: 24px 37px 27px 38px;
+    border-radius: 10px;
+    border: solid 1px #e8e8e8;
+    background-color: #fafafa;
+}

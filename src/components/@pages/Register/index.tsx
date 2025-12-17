@@ -50,11 +50,8 @@ export default function RegisterPage() {
     return (
         <div className="min-h-screen w-screen bg-[#0a2037] flex items-center justify-center bg-[url(/login-background.webp)]  bg-center">
             <div className="relative w-[652px]  flex justify-center">
-
-                {/* existing TOP decorative bar */}
                 <div className="border-mask w-[602px] h-[66px] absolute rounded-[10px] overflow-hidden -top-3"></div>
 
-                {/* MAIN card */}
                 <div className="relative w-full h-full mask shadow-md overflow-hidden rounded-[10px]">
                     <div className="absolute inset-0 bg-[url(/smart-microchip-bg.webp)] bg-cover  bg-no-repeat bg-center"></div>
 
