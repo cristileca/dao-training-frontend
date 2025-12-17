@@ -15,6 +15,7 @@ export interface Bundle {
 export default function StorePage() {
     const [bundles, setBundles] = useState<Bundle[]>([])
 
+
     useEffect(() => {
         DaoTrainingService.getBundles().then((bundles) => setBundles(bundles));
     }, []);

@@ -25,6 +25,7 @@ export default function DashboardPage() {
       user: user!,
   });
 
+
   type Commission = {
     id: string;
     date: string;
@@ -108,7 +109,6 @@ export default function DashboardPage() {
             <Card name={wallet?.data?.id} value={wallet?.data?.balance} />
         </div> : ""
         }
-        <PaymentCard txId={12345} dueValue={50}/>
 
       <div className="flex gap-6">
         <div className="flex-1 space-y-6">
