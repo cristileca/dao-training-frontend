@@ -1,6 +1,5 @@
 
 const getCommissionsRoute = 'api/commissions';
-const createWalletRoute = 'api/create-wallet';
 const getBundleRoute = 'api/packages';
 
 function getCookie(name: string) {
@@ -10,9 +9,6 @@ function getCookie(name: string) {
 }
 
 const getXsrfToken = async () => {
-    await fetch("http://localhost:8000/sanctum/csrf-cookie", {
-        credentials: "include",
-    });
 
     return decodeURIComponent(
         document.cookie
@@ -28,7 +24,6 @@ export const DaoTrainingService =  {
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_COMMISSIONS_URL}${getCommissionsRoute}/${userId}`,
         );
-
         if (!response.ok) {
             return
         }
@@ -111,14 +106,7 @@ export const DaoTrainingService =  {
 
     buyBundle: async (bundleId:string) => {
         try {
-
-
-
-            console.log("intra");
-
             const xrf_token =  await getXsrfToken();
-
-            console.log(xrf_token);
 
             await fetch(`${process.env.NEXT_PUBLIC_COMMISSIONS_URL}${getBundleRoute}`, {
                 method: "POST",

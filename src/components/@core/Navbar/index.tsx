@@ -24,6 +24,13 @@ export default function Navbar() {
                     >
                         Store
                     </Link>
+
+                    <Link
+                        href="/tree"
+                        className="inline-block overflow-visible text-[#ffeaa5] text-sm rounded bg-blue-900 px-3 py-2 hover:text-white hover:scale-110 transition-transform duration-200"
+                    >
+                        Tree
+                    </Link>
                 </div>
 
             </nav>

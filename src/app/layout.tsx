@@ -12,6 +12,7 @@ import {
   QueryClientProvider,
   useQueryClient,
 } from "@tanstack/react-query";
+import {WalletProvider} from "@/context/WalletContext";
 
 
 const roboto = Roboto({
@@ -47,8 +48,10 @@ export default function RootLayout({
       >
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            {!hideNavbar && <Navbar />}
-            {children}
+              <WalletProvider>
+                {!hideNavbar && <Navbar />}
+                {children}
+              </WalletProvider>
           </AuthProvider>
         </QueryClientProvider>
       </body>

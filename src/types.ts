@@ -10,3 +10,9 @@ export type LoginResponse = {
     message: string;
     user: User
 }
+
+export type UserWithSubordinates = User & {
+    _directSubordinates: number;
+    _totalSubordinates: number;
+    depth?: number;
+};

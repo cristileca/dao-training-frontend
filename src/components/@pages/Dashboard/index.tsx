@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useGetcommissions } from "../../../../hooks/useGetCommissions";
@@ -14,6 +14,11 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import Card from "@/components/@core/Card/Card";
 import PaymentCard from "@/components/@core/Card/PaymentCard";
+import {useWallet} from "@/lib/useWallet";
+import WalletCard from "@/components/@core/Card/WalletCard";
+import {WalletContext} from "@/context/WalletContext";
+
+
 
 export default function DashboardPage() {
   const { user, logout, loading } = useAuth();
@@ -24,6 +29,12 @@ export default function DashboardPage() {
   const comm = useGetcommissions({
       user: user!,
   });
+  const [display, setDisplay] = useState(false)
+  const closeAllModals = () => {
+        setDisplay(false);
+  };
+
+  const {...walletData} = useWallet();
 
 
   type Commission = {
@@ -51,13 +62,13 @@ export default function DashboardPage() {
   );
 
   const initWallet = async () => {
-    setWalletCreated(true);
-    await DaoTrainingService.createWallet(user?.id).then(() => {
-      setWalletCreated(false);
-    });
-    await queryClient.invalidateQueries({ queryKey: ["GET_WALLET"] });
+    // setWalletCreated(true);
+    // await DaoTrainingService.createWallet(user?.id).then(() => {
+    //   setWalletCreated(false);
+    // });
+    // await queryClient.invalidateQueries({ queryKey: ["GET_WALLET"] });
+      setDisplay(true);
   };
-    console.log(wallet);
 
   const claimCommission = async (commissionId: string) => {
       await DaoTrainingService.claimCommission(commissionId);
@@ -65,8 +76,8 @@ export default function DashboardPage() {
       await queryClient.invalidateQueries({ queryKey: ["GET_WALLET", user?.id] });
       await wallet.refetch();
       await comm.refetch();
-      console.log(comm.data);
   }
+
 
   return (
     <div className="min-h-screen bg-[#0a2037] p-6">
@@ -103,11 +114,55 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
-        {wallet ?
-        <div className="flex items-center bg-[#10314a] flex-col  m-auto w-[30%] mb-7 rounded-md ">
-            <h3 className={"m-2"}>Wallet</h3>
-            <Card name={wallet?.data?.id} value={wallet?.data?.balance} />
-        </div> : ""
+        {walletData?.wallet?.address && (
+            <div className="flex flex-col items-center bg-gradient-to-br from-[#0e2a45] to-[#143b5c] text-white p-6 rounded-2xl shadow-lg w-[380px] m-auto mb-7 border border-[#1f4d6d]/50">
+
+                <h3 className="text-xl font-bold mb-3 tracking-wide flex items-center gap-2">
+                    <span className="text-[#ffeaa5]"> Wallet</span>
+                </h3>
+
+                <div className="w-full text-left space-y-3">
+
+                    <div className="bg-[#102c47] border border-[#1f4d6d] p-3 rounded-lg">
+                        <p className="text-xs text-gray-300 uppercase">Address</p>
+                        <p className="font-mono text-sm break-all mt-1 text-[#e2f1ff]">{walletData.wallet.address}</p>
+                    </div>
+
+                    <div className="bg-[#102c47] border border-[#1f4d6d] p-3 rounded-lg">
+                        <p className="text-xs text-gray-300 uppercase">Balance</p>
+                        <p className="text-lg font-semibold text-[#79ffb7] mt-1">
+                            {walletData.wallet.balance ?? "0"} ETH
+                        </p>
+                    </div>
+
+                    <div className="flex justify-between gap-3 mt-4">
+                        <button className="flex-1 bg-[#1f5e85] hover:bg-[#2b7ba8] py-2 rounded-lg text-sm font-semibold transition">
+                            Deposit
+                        </button>
+                        <button className="flex-1 bg-[#1f5e85] hover:bg-[#2b7ba8] py-2 rounded-lg text-sm font-semibold transition">
+                            Withdraw
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {display &&
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
+
+        <button
+            className="absolute top-3 right-3 text-white hover:text-red-400"
+            onClick={() => {closeAllModals()}}
+        >
+            ✕
+        </button>
+            <WalletCard
+                name={wallet?.data?.id}
+                value={wallet?.data?.balance}
+                display={display}
+                closeAllModals={closeAllModals}
+            />
+        </div>
         }
 
       <div className="flex gap-6">
