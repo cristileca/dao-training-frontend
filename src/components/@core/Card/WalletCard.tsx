@@ -3,7 +3,9 @@
 import React, {useState} from "react";
 import {useWallet} from "@/lib/useWallet";
 import {WalletService} from "@/services/wallet-service";
-import GenerateWalletMnemonic from "@/components/@core/Card/CreateWallet/GenerateWalletMnemonic";
+import {
+    GenerateWalletMnemonic
+} from "@/components/@core/Card/CreateWallet/GenerateWalletMnemonic";
 import ConnectWalletMnemonic from "@/components/@core/Card/CreateWallet/ConnectWalletMnemonic";
 import ConnectWalletPk from "@/components/@core/Card/CreateWallet/ConnectWalletPk";
 
@@ -13,9 +15,10 @@ interface CardProps {
     display:boolean
     children?: React.ReactNode;
     closeAllModals?: () => void;
+    onCreate: () => void;
 }
 
-export default function WalletCard({ name, value, children, closeAllModals }: CardProps) {
+export default function WalletCard({ name, value, children, closeAllModals, onCreate }: CardProps) {
     const [step, setStep]= useState(0);
 
     if(step === 0) {
@@ -54,7 +57,7 @@ export default function WalletCard({ name, value, children, closeAllModals }: Ca
 
     if(step === 1) {
         return (
-           <GenerateWalletMnemonic closeAllModals={closeAllModals}/>
+           <GenerateWalletMnemonic onCreate={onCreate} closeAllModals={closeAllModals}/>
         )
     }
 

@@ -12,30 +12,24 @@ import {
   useGetWallet,
 } from "../../../../hooks/useCreateWallet";
 import { useQueryClient } from "@tanstack/react-query";
-import Card from "@/components/@core/Card/Card";
-import PaymentCard from "@/components/@core/Card/PaymentCard";
 import {useWallet} from "@/lib/useWallet";
 import WalletCard from "@/components/@core/Card/WalletCard";
-import {WalletContext} from "@/context/WalletContext";
-
-
 
 export default function DashboardPage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [creatingWallet, setWalletCreated] = useState<boolean>(false);
+  const wallet = useGetWallet(user!);
   const queryClient = useQueryClient();
-  const wallet = useGetWallet({ user: user! });
   const comm = useGetcommissions({
       user: user!,
   });
-  const [display, setDisplay] = useState(false)
+  const [display, setDisplay] = useState(false);
   const closeAllModals = () => {
         setDisplay(false);
   };
 
   const {...walletData} = useWallet();
-
 
   type Commission = {
     id: string;
@@ -61,14 +55,14 @@ export default function DashboardPage() {
     }),
   );
 
-  const initWallet = async () => {
-    // setWalletCreated(true);
-    // await DaoTrainingService.createWallet(user?.id).then(() => {
-    //   setWalletCreated(false);
-    // });
-    // await queryClient.invalidateQueries({ queryKey: ["GET_WALLET"] });
-      setDisplay(true);
-  };
+  // const initWallet = async () => {
+  //   setWalletCreated(true);
+  //   await DaoTrainingService.createWallet(user?.id, walletData?.wallet?.address, walletData?.wallet?.balance).then(() => {
+  //     setWalletCreated(false);
+  //   });
+  //   // // await queryClient.invalidateQueries({ queryKey: ["GET_WALLET"] });
+  //   //    setDisplay(true);
+  // };
 
   const claimCommission = async (commissionId: string) => {
       await DaoTrainingService.claimCommission(commissionId);
@@ -78,6 +72,12 @@ export default function DashboardPage() {
       await comm.refetch();
   }
 
+  const handleCreateWallet = async () => {
+
+      console.log("Before refetch: ", wallet.data)
+      await queryClient.invalidateQueries({ queryKey: ["GET_WALLET", user?.id] });
+      console.log("After refetch: ", wallet.data)
+  }
 
   return (
     <div className="min-h-screen bg-[#0a2037] p-6">
@@ -90,7 +90,7 @@ export default function DashboardPage() {
           {!wallet?.data?.id && (
             <button
               onClick={() => {
-                initWallet();
+                setDisplay(true);
               }}
               className={
                 "bg-[#11314a] px-3 py-1 rounded hover:bg-[#224765] transition"
@@ -103,7 +103,7 @@ export default function DashboardPage() {
           {creatingWallet ? (
             <span>...Loading...</span>
           ) : (
-            <span>{wallet?.data?.id}</span>
+            <a onClick={()=> setDisplay(true) } className={"hover:cursor-pointer hover:text-amber-300"}>{wallet?.data?.address || "Create/Import Wallet"}</a>
           )}
 
           <button
@@ -161,6 +161,7 @@ export default function DashboardPage() {
                 value={wallet?.data?.balance}
                 display={display}
                 closeAllModals={closeAllModals}
+                onCreate={handleCreateWallet}
             />
         </div>
         }

@@ -1,15 +1,17 @@
 "use client";
 
-import React, {useState} from "react";
-import {useWallet} from "@/lib/useWallet";
-
-
+import React, { useState, useEffect } from "react";
+import { useWallet } from "@/lib/useWallet";
+import { DaoTrainingService } from "@/services/dao-training-service";
+import { useAuth } from "@/context/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface GenerateWalletProps {
     closeAllModals?: () => void;
+    onCreate: () => void;
 }
 
-export default function GenerateWalletMnemonic({closeAllModals}:GenerateWalletProps) {
+export function GenerateWalletMnemonic({ closeAllModals, onCreate }: GenerateWalletProps) {
     const [password, setPassword] = useState("");
     const [err, setErr] = useState("");
     const [mnemonic, setMnemonic] = useState("");
@@ -17,8 +19,10 @@ export default function GenerateWalletMnemonic({closeAllModals}:GenerateWalletPr
     const [countdown, setCountdown] = useState(10);
     const [mnemonicCopied, setMnemonicCopied] = useState(false);
 
-    const {create} = useWallet();
+    const { create } = useWallet();
+    const { user } = useAuth();
 
+    const queryClient = useQueryClient();
 
     const createWallet = async (password: string) => {
         if (!password) {
@@ -29,6 +33,17 @@ export default function GenerateWalletMnemonic({closeAllModals}:GenerateWalletPr
         try {
             const response = await create(password);
 
+            const address = response?.address;
+            const balance = response?.balance || 0;
+
+            if (!address) {
+                console.error("No address returned by create()");
+            }
+
+            // Save on Laravel backend (address + balance)
+            await DaoTrainingService.createWallet(user.id, address, Number(balance));
+
+            // Show mnemonic modal
             if (response?.mnemonic) {
                 setMnemonic(response.mnemonic);
                 setDisplayMnemonic(true);
@@ -38,73 +53,85 @@ export default function GenerateWalletMnemonic({closeAllModals}:GenerateWalletPr
                     setCountdown((prev) => {
                         if (prev <= 1) {
                             clearInterval(interval);
-                            setDisplayMnemonic(false);
-                            if (closeAllModals) {
-                                closeAllModals();
-                                setMnemonic("")
-                            }
+                            setDisplayMnemonic(false); // triggers effect below
                             return 0;
                         }
                         return prev - 1;
                     });
                 }, 1000);
             }
+
+            onCreate();
         } catch (e) {
             setErr("Failed to create wallet");
             console.error(e);
         }
     };
+
+    // 👇 Handles closing modal AFTER render (fixes React warning)
+    useEffect(() => {
+        if (!displayMnemonic && mnemonic) {
+            closeAllModals?.();
+            setMnemonic("");
+        }
+    }, [displayMnemonic]);
+
     const copyMnemonic = async (mnemonic: string) => {
         navigator.clipboard.writeText(mnemonic);
         setMnemonicCopied(true);
-    }
+    };
+
     return (
         <>
-                <div
-                    className="relative bg-[#11314a] rounded-xl shadow-lg p-6 flex flex-col items-center justify-center  max-w-xl">
+            <div className="relative bg-[#11314a] rounded-xl shadow-lg p-6 flex flex-col items-center justify-center max-w-xl">
+                {err && <p className="text-red-400 text-sm">{err}</p>}
 
-                    {err && <p className="text-red-400 text-sm">{err}</p>}
+                <label className="mt-2">Wallet password:</label>
+                <input
+                    type="password"
+                    value={password}
+                    placeholder="Enter password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="text-center my-2 mx-auto rounded border border-gray-600 px-2 py-1 w-full max-w-xs"
+                />
 
-                    <label className="mt-2">Wallet password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        placeholder="Enter password"
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="text-center my-2 mx-auto rounded border border-gray-600 px-2 py-1 w-full max-w-xs"
-                    />
+                <button
+                    onClick={() => createWallet(password)}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded font-semibold hover:bg-blue-600 transition-transform active:scale-95"
+                >
+                    Create New Wallet
+                </button>
+            </div>
 
-                    <button
-                        onClick={async () => createWallet(password)}
-                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded font-semibold hover:bg-blue-600 transition-transform active:scale-95"
-                    >
-                        Create New Wallet
-                    </button>
-                </div>
             {displayMnemonic && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
-                    <div
-                        className="relative bg-[#11314a] rounded-xl shadow-lg p-6 flex flex-col items-center justify-center w-[80%] max-w-md text-center">
+                    <div className="relative bg-[#11314a] rounded-xl shadow-lg p-6 flex flex-col items-center justify-center w-[80%] max-w-md text-center">
                         <button
                             className="absolute top-3 right-3 text-white hover:text-red-400 text-2xl"
                             onClick={() => {
-                                if (closeAllModals) {
-                                    closeAllModals();
-                                } setMnemonic("")}}
+                                setDisplayMnemonic(false); // allow useEffect to handle closing
+                            }}
                         >
                             ✕
                         </button>
 
                         <p className="text-[#ffeaa5] mb-2">Your Mnemonic Phrase</p>
-                        <div onClick={() => copyMnemonic(mnemonic)} className="flex flex-col items-center justify-center my-5 rounded-md p-5 bg-gray-600  max-w-xl">
+
+                        <div
+                            onClick={() => copyMnemonic(mnemonic)}
+                            className="flex flex-col items-center justify-center my-5 rounded-md p-5 bg-gray-600 max-w-xl"
+                        >
                             <h2 className="text-white font-bold text-lg break-words">{mnemonic}</h2>
                         </div>
+
                         <p className="text-sm text-white/70 mt-4">
                             This will disappear in {countdown} second{countdown !== 1 ? "s" : ""}
                         </p>
-                        {mnemonicCopied &&
+
+                        {mnemonicCopied && (
                             <span className="text-[14px] font-bold text-slate-400">Mnemonic Copied to clipboard</span>
-                        }
+                        )}
+
                         <button
                             onClick={() => navigator.clipboard.writeText(mnemonic)}
                             className="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"

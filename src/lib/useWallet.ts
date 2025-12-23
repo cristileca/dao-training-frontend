@@ -17,6 +17,7 @@ export const useWallet = () => {
         const walletState: WalletState = {
             address: newWallet.address,
             encrypted,
+            balance:"0",
         };
 
         setWallet(walletState);
@@ -82,7 +83,6 @@ export const useWallet = () => {
    const getBalance = async (address: string)=> {
         const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia.rpc.subquery.network/public");
         const balance = await provider.getBalance(address);
-        console.log(ethers.formatEther(balance));
         return ethers.formatEther(balance);
     }
 

@@ -17,11 +17,12 @@ export const useCreateWallet = (
 }
 
 export const useGetWallet = (
-    params:{user:User}
-) =>
-    useQuery({
-        queryKey:[GET_WALLET],
+    user: User
+) => {
+    return useQuery({
+        queryKey: [GET_WALLET, user?.id],
         queryFn:() =>
-            DaoTrainingService.getWallet((params.user?.id)),
-        enabled: !!params.user?.id,
+            DaoTrainingService.getWallet((user?.id)),
+        enabled: !!user,
     })
+}

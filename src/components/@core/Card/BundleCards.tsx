@@ -4,6 +4,7 @@ import {motion} from "framer-motion";
 import {useState} from "react";
 import {DaoTrainingService} from "@/services/dao-training-service";
 import PaymentCard from "@/components/@core/Card/PaymentCard";
+import {useWallet} from "@/lib/useWallet";
 
 interface BundleCardProps {
     id: string;
@@ -15,12 +16,23 @@ interface BundleCardProps {
 export default function BundleCard({ title, price, benefits, id }: BundleCardProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
+    const {wallet,getBalance} = useWallet();
 
 
 
     const buy = (async() =>{
         // setShowModal(true);
         await DaoTrainingService.buyBundle(id);
+    })
+
+
+
+    const buyTraining = (async() =>{
+        const address = wallet?.address;
+        const balance = await getBalance(address);
+        await DaoTrainingService.buy(id, Number(price), Number(balance)).then((res) => {
+             DaoTrainingService.buyBundle(id)
+        });
     })
 
     return (
@@ -33,7 +45,7 @@ export default function BundleCard({ title, price, benefits, id }: BundleCardPro
                 </ul>
                 <motion.button
                     whileTap={{ scale: 0.999 }}
-                    onClick={()=>setShowModal(true)}
+                    onClick={()=>buyTraining()}
                     whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }} // springy bounce
                     className="mt-auto w-full border border-amber-200 h-[48px] bg-gradient-to-r cursor-pointer from-[#11314a] to-[#0c2539] text-white text-sm rounded-lg overflow-visible"

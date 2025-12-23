@@ -1,6 +1,10 @@
 
+import {useWallet} from "@/lib/useWallet";
+import {json} from "node:stream/consumers";
+
 const getCommissionsRoute = 'api/commissions';
 const getBundleRoute = 'api/packages';
+
 
 function getCookie(name: string) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -30,7 +34,7 @@ export const DaoTrainingService =  {
         return await response.json()
     },
 
-    createWallet: async (userId:unknown) => {
+    createWallet: async (userId:unknown, address:string, balance:number) => {
         try {
             const res = await fetch(
                 `${process.env.NEXT_PUBLIC_COMMISSIONS_URL}api/create-wallet/${userId}`,
@@ -40,7 +44,8 @@ export const DaoTrainingService =  {
                         "Accept": "application/json",
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({balance: 0,
+                    address: address}),
                 }
             )
 
@@ -120,6 +125,18 @@ export const DaoTrainingService =  {
             })
         } catch (e) {
             console.error('Error buyBundleError:', e);
+        }
+    },
+
+    buy: async (bundleId:string, bundlePrice:number, balance:number) => {
+        try {
+            if(bundlePrice > balance){
+                console.log("Balance too low");
+                return 0;
+            }
+        }
+        catch (e) {
+            console.log(e)
         }
     }
 }
