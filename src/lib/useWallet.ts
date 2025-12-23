@@ -40,24 +40,31 @@ export const useWallet = () => {
         setWallet(walletState);
     };
 
-    const connectWalletWithMnemonic = async (mnemonicPhrase: string, password: string) => {
-        const Wallet = WalletService.fromMnemonic(mnemonicPhrase);
-        const encrypted = await WalletService.encrypt(Wallet, password);
-        const mnemonic = Wallet.mnemonic?.phrase;
-
-        getBalance(Wallet.address);
-
+    const connectWalletWithMnemonic = async (
+        mnemonicPhrase: string,
+        password: string
+    ) => {
+        const wallet = WalletService.fromMnemonic(mnemonicPhrase);
+        const encrypted = await WalletService.encrypt(wallet, password);
+        const mnemonic = wallet.mnemonic?.phrase;
+        const balance = await getBalance(wallet.address);
         const walletState: WalletState = {
-            address: Wallet.address,
+            address: wallet.address,
             encrypted,
+            balance,
         };
 
-        await setWallet(walletState);
+        setWallet(walletState);
+        sessionStorage.setItem(
+            "DaoTestWallet",
+            JSON.stringify(walletState)
+        );
+        return {
+            ...walletState,
+            mnemonic,
+        };
+    };
 
-        sessionStorage.setItem("DaoTestWallet", JSON.stringify(walletState));
-
-        return { ...walletState, mnemonic };
-    }
 
     const connectWalletWithPk = async (privateKey: string, password: string) => {
         const Wallet = WalletService.fromPrivateKey(privateKey);

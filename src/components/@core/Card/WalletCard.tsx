@@ -63,13 +63,13 @@ export default function WalletCard({ name, value, children, closeAllModals, onCr
 
     if(step === 2) {
         return (
-            <ConnectWalletMnemonic closeAllModals={closeAllModals}/>
+            <ConnectWalletMnemonic onCreate={onCreate} closeAllModals={closeAllModals}/>
         )
     }
 
     if(step === 3) {
         return (
-            <ConnectWalletPk closeAllModals={closeAllModals}/>
+            <ConnectWalletPk onCreate={onCreate} closeAllModals={closeAllModals}/>
         )
     }
 }
