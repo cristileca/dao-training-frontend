@@ -2,17 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import StorePage from "@/components/@pages/Store";
+import {useAuth} from "@/context/AuthContext";
 
 export default function HomePage() {
     const router = useRouter();
-    const token = localStorage.getItem("token");
-
+    const {user} = useAuth()
+  
     return (
         <main className="min-h-screen grid place-items-center bg-gradient-to-b from-gray-900 to-gray-800 text-white p-6">
             <div className="text-center space-y-4 mb-5">
                 <h1 className="text-4xl font-bold">Mai Centralized DAO</h1>
 
-                {token ? (
+                {user ? (
                     <button onClick={() => router.push("/dashboard")} className="bg-white text-black px-5 py-2 rounded-lg text-sm font-medium">
                         Open Dashboard
                     </button>

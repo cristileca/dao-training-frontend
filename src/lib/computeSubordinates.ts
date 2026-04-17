@@ -1,26 +1,65 @@
-import {User, UserWithSubordinates} from "@/types";
+import { User, UserWithSubordinates } from "@/types";
 
-export function computeSubordinates(users:User[]):UserWithSubordinates{
-    const userMap = new Map(users.map(u=> [u.id, {...u, _directSubordinates:0, _totalSubordinates:0}]));
-
+export function computeSubordinates(
+  users: User[],
+  rootUserId: string
+): UserWithSubordinates | null {
+    
+    // Map id -> user
+    const userMap = new Map<string, UserWithSubordinates>();
+    
+    // Initialize users
     users.forEach(u => {
-        if (u.referral_id && userMap.has(u.referral_id)) {
-            userMap.get(u.referral_id)!._directSubordinates!++;
-        }
-
-        function countTotal(id: string): number {
-            const user = userMap.get(id);
-            if (!user) return 0;
-            const children = users.filter(u => u.referral_id === id);
-            let total = children.length;
-            children.forEach(c => {
-                total += countTotal(c.id);
-            });
-            user._totalSubordinates = total;
-            return total;
-        }
-
-        users.filter(u=> !u.referral_id).forEach(u => countTotal(u.id));
+        userMap.set(u.id, {
+            ...u,
+            children: [],
+            _directSubordinates: 0,
+            _totalSubordinates: 0
+        });
     });
-    return Array.from(userMap.values()) as unknown as UserWithSubordinates ;
+    
+    // Build parent -> children relations
+    users.forEach(u => {
+        
+        if (!u.referral_id) return;
+        
+        const parent =
+          userMap.get(u.referral_id);
+        
+        const child =
+          userMap.get(u.id);
+        
+        if (parent && child) {
+            
+            parent.children.push(child);
+            
+            parent._directSubordinates++;
+        }
+        
+    });
+    
+    // Recursive total calculator
+    function countTotal(
+      user: UserWithSubordinates
+    ): number {
+        
+        let total = user.children.length;
+        
+        user.children.forEach(child => {
+            total += countTotal(child);
+        });
+        
+        user._totalSubordinates = total;
+        
+        return total;
+    }
+    
+    const root =
+      userMap.get(rootUserId);
+    
+    if (!root) return null;
+    
+    countTotal(root);
+    
+    return root;
 }

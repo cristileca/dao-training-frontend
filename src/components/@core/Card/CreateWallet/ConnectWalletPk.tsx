@@ -31,11 +31,11 @@ export default function ConnectWalletPk({ closeAllModals , onCreate}: ConnectWal
             if (!wallet?.address) {
                 throw new Error("Wallet address missing");
             }
-
+    console.log(wallet.balance);
             await DaoTrainingService.createWallet(
                 user?.id,
                 wallet.address,
-                Number(wallet.balance ?? 0)
+                Number(wallet.balance)
             );
 
             setPrivateKey("");

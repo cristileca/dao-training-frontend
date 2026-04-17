@@ -34,6 +34,7 @@ export const useWallet = () => {
         const walletState: WalletState = {
             address: decrypted.address,
             encrypted,
+            balance: wallet?.balance,
         };
 
 
@@ -87,11 +88,36 @@ export const useWallet = () => {
         return { ...walletState, mnemonic };
     }
 
-   const getBalance = async (address: string)=> {
+   const getBalance = async (address: string | undefined)=> {
         const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia.rpc.subquery.network/public");
         const balance = await provider.getBalance(address);
         return ethers.formatEther(balance);
     }
+   const sendETH = async (
+        to: "0x934c7188957da61f12ef3541b3b8728d991277244ea507b6f1b243e42d0a69bb",
+        amountEth: string,
+        password: string
+    ) => {
+        if (!wallet?.encrypted) throw new Error("Wallet not connected");
 
-    return { wallet, create, signTx, connectWalletWithMnemonic, connectWalletWithPk, getBalance };
+        const signer = await WalletService.decrypt(wallet.encrypted, password);
+        const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia.rpc.subquery.network/public");
+        const connected = signer.connect(provider);
+
+        const tx = await connected.sendTransaction({
+            to:"0x934c7188957da61f12ef3541b3b8728d991277244ea507b6f1b243e42d0a69bb",
+            value: ethers.parseEther(amountEth),
+        });
+
+        await tx.wait();
+         console.log("transaction: ", tx);
+        const newBalance = await getBalance(wallet.address);
+        setWallet({ ...wallet, balance: newBalance });
+        sessionStorage.setItem("DaoTestWallet", JSON.stringify({ ...wallet, balance: newBalance }));
+
+        return tx.hash;
+    };
+
+
+    return { wallet, create, signTx, connectWalletWithMnemonic, connectWalletWithPk, getBalance , sendETH};
 };

@@ -9,6 +9,7 @@ export interface WalletState {
 interface WalletContextType {
     wallet: WalletState | null;
     setWallet: (wallet: WalletState | null) => void;
+    ballance: WalletState | null;
 }
 
 export const WalletContext = createContext<WalletContextType | undefined>(undefined);

@@ -44,7 +44,7 @@ export const DaoTrainingService =  {
                         "Accept": "application/json",
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({balance: 0,
+                    body: JSON.stringify({balance: balance,
                     address: address}),
                 }
             )
@@ -134,6 +134,8 @@ export const DaoTrainingService =  {
                 console.log("Balance too low");
                 return 0;
             }
+
+            console.log("Purchase completed");
         }
         catch (e) {
             console.log(e)
